@@ -6,7 +6,7 @@ license-file:       LICENSE
 author:             Pantsman
 maintainer:         214776175+pantsman-jp@users.noreply.github.com
 build-type:         Simple
-extra-doc-files:    README.md, CHANGELOG.md
+extra-doc-files:    README.md, CHANGELOG.md, docs/Grammar.bnf
 
 common warnings
   ghc-options: -Wall

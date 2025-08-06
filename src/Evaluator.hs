@@ -1,6 +1,6 @@
 module Evaluator where
 
-import Ast
+import Ast (Expr (..))
 
 eval :: Expr -> Int
 eval (Lit n) = n

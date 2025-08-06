@@ -1,6 +1,6 @@
 module Parser where
 
-import Ast
+import Ast (Expr (Add, Div, Lit, Mul, Pow, Sub))
 import Control.Applicative (Alternative (..))
 import Data.Char (isAlpha, isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
@@ -82,14 +82,14 @@ alphanum = sat isAlphaNum
 char :: Char -> Parser Char
 char x = sat (== x)
 
-string :: [Char] -> Parser [Char]
+string :: String -> Parser String
 string [] = return []
 string (x : xs) = do
   char x
   string xs
   return (x : xs)
 
-ident :: Parser [Char]
+ident :: Parser String
 ident = do
   x <- lower
   xs <- many alphanum
@@ -121,7 +121,7 @@ token p = do
   space
   return v
 
-identifier :: Parser [Char]
+identifier :: Parser String
 identifier = token ident
 
 natural :: Parser Int
@@ -130,7 +130,7 @@ natural = token nat
 integer :: Parser Int
 integer = token int
 
-symbol :: [Char] -> Parser [Char]
+symbol :: String -> Parser String
 symbol xs = token (string xs)
 
 expr :: Parser Expr

@@ -1,11 +1,9 @@
+import Evaluator
 import Parser
 
 main :: IO ()
 main = do
-  putStrLn "> "
-  line <- getLine
-  case parse expr line of
-    [(n, [])] -> print n
-    [(_, out)] -> putStrLn ("illegal input" ++ out)
-    [] -> putStrLn "illegal input"
-    _ -> putStrLn "illegal input"
+  inp <- getLine
+  case parse expr inp of
+    [(ast, "")] -> print (eval ast)
+    _ -> putStrLn "Parse error"

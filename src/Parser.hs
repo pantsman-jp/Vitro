@@ -1,6 +1,7 @@
 module Parser where
 
-import Control.Applicative
+import Ast
+import Control.Applicative (Alternative (..))
 import Data.Char (isAlpha, isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
 newtype Parser a = P (String -> [(a, String)])
@@ -37,7 +38,7 @@ instance Monad Parser where
 
 instance Alternative Parser where
   -- empty :: Parser a
-  empty = P (\input -> [])
+  empty = P (const [])
 
   -- (<|>) :: Parser a -> Parser a -> Parser a
   p <|> q =
@@ -61,7 +62,7 @@ item =
 sat :: (Char -> Bool) -> Parser Char
 sat p = do
   x <- item
-  (if p x then return x else empty)
+  if p x then return x else empty
 
 digit :: Parser Char
 digit = sat isDigit
@@ -81,14 +82,14 @@ alphanum = sat isAlphaNum
 char :: Char -> Parser Char
 char x = sat (== x)
 
-string :: String -> Parser String
+string :: [Char] -> Parser [Char]
 string [] = return []
 string (x : xs) = do
   char x
   string xs
   return (x : xs)
 
-ident :: Parser String
+ident :: Parser [Char]
 ident = do
   x <- lower
   xs <- many alphanum
@@ -106,20 +107,21 @@ space = do
 
 int :: Parser Int
 int =
-  do
-    char '-'
-    n <- nat
-    return (-n)
+  ( do
+      char '-'
+      n <- nat
+      return (-n)
+  )
     <|> nat
 
-token :: Parser a -> Parser a
+token :: Parser b -> Parser b
 token p = do
   space
   v <- p
   space
   return v
 
-identifier :: Parser String
+identifier :: Parser [Char]
 identifier = token ident
 
 natural :: Parser Int
@@ -128,56 +130,50 @@ natural = token nat
 integer :: Parser Int
 integer = token int
 
-symbol :: String -> Parser String
+symbol :: [Char] -> Parser [Char]
 symbol xs = token (string xs)
 
-expr :: Parser Int
+expr :: Parser Expr
 expr = do
   t <- term
-  do
-    symbol "+"
-    e <- expr
-    return (t + e)
-    <|> do
-      symbol "-"
-      e <- expr
-      return
-        (t - e)
+  ( do
+      symbol "+"
+      Add t <$> expr
+    )
+    <|> ( do
+            symbol "-"
+            Sub t <$> expr
+        )
     <|> return t
 
-term :: Parser Int
+term :: Parser Expr
 term = do
   p <- power
-  do
-    symbol "*"
-    t <- term
-    return (p * t)
-    <|> do
-      symbol "/"
-      t <- term
-      return (p `div` t)
+  ( do
+      symbol "*"
+      Mul p <$> term
+    )
+    <|> ( do
+            symbol "/"
+            Div p <$> term
+        )
     <|> return p
 
-power :: Parser Int
+power :: Parser Expr
 power = do
   f <- factor
-  do
-    symbol "^"
-    p <- power
-    return (f ^ p)
+  ( do
+      symbol "^"
+      Pow f <$> power
+    )
     <|> return f
 
-factor :: Parser Int
+factor :: Parser Expr
 factor =
-  do
-    symbol "("
-    e <- expr
-    symbol ")"
-    return e
-    <|> integer
-
-eval :: String -> Int
-eval xs = case parse expr xs of
-  [(n, [])] -> n
-  [(_, out)] -> error ("Unsed input" ++ out)
-  [] -> error "Invalid input"
+  ( do
+      symbol "("
+      e <- expr
+      symbol ")"
+      return e
+  )
+    <|> (Lit <$> integer)

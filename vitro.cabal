@@ -1,12 +1,12 @@
 cabal-version:      3.0
 name:               vitro
-version:            0.1.0.0
+version:            0.2.0
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Pantsman
 maintainer:         214776175+pantsman-jp@users.noreply.github.com
 build-type:         Simple
-extra-doc-files:    CHANGELOG.md
+extra-doc-files:    README.md, CHANGELOG.md
 
 common warnings
   ghc-options: -Wall
@@ -14,16 +14,18 @@ common warnings
 library
   exposed-modules:
     Parser
+    Ast
+    Evaluator
   hs-source-dirs:   src
   build-depends:
-      base ^>=4.18.3.0
+    base ^>=4.18.3.0
   default-language: Haskell2010
 
 executable vitro
   import:           warnings
   main-is:          Main.hs
   build-depends:
-      base ^>=4.18.3.0,
-      vitro
+    base ^>=4.18.3.0,
+    vitro
   hs-source-dirs:   app
   default-language: Haskell2010

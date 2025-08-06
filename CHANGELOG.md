@@ -1,4 +1,4 @@
-# / pantsman
+# Changelog of Vitro
 
 ## v0.2.0 (2025-08-04)
 - subtraction, division, and exponentiation

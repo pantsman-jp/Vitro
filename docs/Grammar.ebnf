@@ -1,0 +1,14 @@
+# expr
+expr = term , { ("+" | "-") , term } ;
+term = power , { ("*" | "/") , power } ;
+power = factor , [ "^" , power ] ;
+factor = "(" , expr , ")" | integer ;
+integer = [ "-" ] , digits ;
+digits = digit , { digit } ;
+digit = "0" | ... | "9" ;
+
+# sequence process
+seq = { var , "=" , expr , ";"} , "return" , process ;
+process   = var | integer | ( "(" , expr , ")" ) ;
+var = alph , { alph | digit } ;
+alph = "a" | ... | "z"

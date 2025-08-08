@@ -1,5 +1,11 @@
 module Ast where
 
+newtype Program = Program [Statement]
+
+data Statement
+  = Assign String Expr
+  | Return Expr
+
 data Expr
   = Add Expr Expr
   | Sub Expr Expr

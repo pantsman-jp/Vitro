@@ -1,6 +1,6 @@
 module Parser where
 
-import Ast (Expr (Add, Div, Lit, Mul, Pow, Sub))
+import Ast (Expr (..), Program (..), Statement (..))
 import Control.Applicative (Alternative (..))
 import Data.Char (isAlpha, isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
@@ -177,3 +177,33 @@ factor =
       return e
   )
     <|> (Lit <$> integer)
+
+statement :: Parser Statement
+statement =
+  ( do
+      var <- identifier
+      symbol "="
+      e <- expr
+      symbol ";"
+      return (Assign var e)
+  )
+    <|> ( do
+            symbol "return"
+            Return <$> process
+        )
+
+process :: Parser Expr
+process =
+  (Lit <$> integer)
+    <|> (Var <$> identifier)
+    <|> ( do
+            symbol "("
+            e <- expr
+            symbol ")"
+            return e
+        )
+
+program :: Parser Program
+program = do
+  stmts <- many (token statement)
+  return (Program stmts)

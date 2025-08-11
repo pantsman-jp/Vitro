@@ -176,6 +176,7 @@ factor =
       symbol ")"
       return e
   )
+    <|> (Var <$> identifier)
     <|> (Lit <$> integer)
 
 statement :: Parser Statement
@@ -189,7 +190,9 @@ statement =
   )
     <|> ( do
             symbol "return"
-            Return <$> process
+            e <- expr
+            symbol ";"
+            return (Return e)
         )
 
 process :: Parser Expr
@@ -205,5 +208,13 @@ process =
 
 program :: Parser Program
 program = do
-  stmts <- many (token statement)
+  space
+  stmts <- many statement
+  space
+  eof
   return (Program stmts)
+
+eof :: Parser ()
+eof = P $ \input -> case input of
+  [] -> [((), "")]
+  _ -> []

@@ -1,19 +1,18 @@
 # Changelog of Vitro
 
 ## Will Be Implemented ...
-- sequence process (assiginment and evaluation: `x=1; y=2; return x+y;`?)
 - selection process (`if ~ then ~ else ~;`?)
 - loop process (`while` or `for`)
 - function
 - string type
 - float type
 
-## v0.4.0 - beta (2025-08-08)
-- `Grammar.bnf` -> `Grammar.ebnf`
-  - using regular expression
-- add grammar of sequence process
-  - add AST
-  - add parser
+## v0.4.0 (2025-08-11)
+- Renamed `Grammar.bnf` to `Grammar.ebnf`
+  - Changed to use regular expressions
+- Added grammar for sequence processing
+  - Added corresponding AST nodes
+  - Added parser implementation
 
 ## v0.3.0 (2025-08-06)
 - split the project's module structure and organize it into three modules:

@@ -17,12 +17,17 @@ To run:
 ```shell
 % cabal run
 ```
-Then you can input an integer expression, and it is evaluated.
+Then you can input a program, and it is evaluated.
 Like this:
 ```
 >
 1 + 2    *(3  ^  2 /3) - 4
 3
+```
+```
+>
+x=2; y=2; return x+y;
+4
 ```
 As you can see, the presence or absence of spaces between operators does not matter.
 

@@ -1,11 +1,24 @@
 # Changelog of Vitro
 
 ## Will Be Implemented ...
-- selection process (`if ~ then ~ else ~;`?)
 - loop process (`while` or `for`)
 - function
 - string type
 - float type
+
+## v0.5.0 (2025-08-23)
+- Added `if` expression support in `process`
+  - `then` / `else` clauses are now mandatory
+  - Supports literals, variables, and nested expressions as `process`
+- Added comparison operators support
+  - `==`, `!=`, `<`, `<=`, `>`, `>=` can now be used in `if` expressions
+- Changed `process` parser order
+  - `ifStmt` is now parsed before identifiers to allow `return if ...`
+- Modified `statement` parser
+  - `return` statements now accept `process` instead of only `expr`
+- Fixed evaluation of `Return` statements
+  - Correctly handles `if` expressions without causing runtime pattern-match errors
+
 
 ## v0.4.0 (2025-08-11)
 - Renamed `Grammar.bnf` to `Grammar.ebnf`

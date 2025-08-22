@@ -1,13 +1,12 @@
 module Parser where
 
-import Ast (Expr (..), Program (..), Statement (..))
+import Ast (CompareOp (..), Expr (..), Process (..), Program (..), Statement (..))
 import Control.Applicative (Alternative (..))
 import Data.Char (isAlpha, isAlphaNum, isDigit, isLower, isSpace, isUpper)
 
 newtype Parser a = P (String -> [(a, String)])
 
 instance Functor Parser where
-  -- fmap :: (a -> b) -> Parser a -> Parser b
   fmap g p =
     P
       ( \input -> case parse p input of
@@ -16,10 +15,7 @@ instance Functor Parser where
       )
 
 instance Applicative Parser where
-  -- pure :: a -> Parser a
   pure v = P (\input -> [(v, input)])
-
-  -- (<*>) :: Parser (a -> b) -> Parser a -> Parser b
   pg <*> px =
     P
       ( \input -> case parse pg input of
@@ -28,7 +24,6 @@ instance Applicative Parser where
       )
 
 instance Monad Parser where
-  -- (>>=) :: Parser a -> (a -> Parser b) -> Parser b
   p >>= f =
     P
       ( \input -> case parse p input of
@@ -37,10 +32,7 @@ instance Monad Parser where
       )
 
 instance Alternative Parser where
-  -- empty :: Parser a
   empty = P (const [])
-
-  -- (<|>) :: Parser a -> Parser a -> Parser a
   p <|> q =
     P
       ( \input -> case parse p input of
@@ -64,19 +56,11 @@ sat p = do
   x <- item
   if p x then return x else empty
 
-digit :: Parser Char
+digit, lower, upper, letter, alphanum :: Parser Char
 digit = sat isDigit
-
-lower :: Parser Char
 lower = sat isLower
-
-upper :: Parser Char
 upper = sat isUpper
-
-letter :: Parser Char
 letter = sat isAlpha
-
-alphanum :: Parser Char
 alphanum = sat isAlphaNum
 
 char :: Char -> Parser Char
@@ -136,74 +120,74 @@ symbol xs = token (string xs)
 expr :: Parser Expr
 expr = do
   t <- term
-  ( do
-      symbol "+"
-      Add t <$> expr
-    )
-    <|> ( do
-            symbol "-"
-            Sub t <$> expr
-        )
+  (do symbol "+"; Add t <$> expr)
+    <|> (do symbol "-"; Sub t <$> expr)
     <|> return t
 
 term :: Parser Expr
 term = do
   p <- power
-  ( do
-      symbol "*"
-      Mul p <$> term
-    )
-    <|> ( do
-            symbol "/"
-            Div p <$> term
-        )
+  (do symbol "*"; Mul p <$> term)
+    <|> (do symbol "/"; Div p <$> term)
     <|> return p
 
 power :: Parser Expr
 power = do
   f <- factor
-  ( do
-      symbol "^"
-      Pow f <$> power
-    )
+  (do symbol "^"; Pow f <$> power)
     <|> return f
 
 factor :: Parser Expr
 factor =
-  ( do
-      symbol "("
-      e <- expr
-      symbol ")"
-      return e
-  )
+  (do symbol "("; e <- expr; symbol ")"; return e)
     <|> (Var <$> identifier)
     <|> (Lit <$> integer)
 
+process :: Parser Process
+process =
+  ifStmt
+    <|> (PLit <$> integer)
+    <|> (PVar <$> identifier)
+    <|> (do symbol "("; e <- expr; symbol ")"; return (PExpr e))
+    <|> (PExpr <$> expr)
+
+ifStmt :: Parser Process
+ifStmt = do
+  symbol "if"
+  lhs <- expr
+  op <- compareOp
+  rhs <- expr
+  symbol "then"
+  p1 <- process
+  symbol "else"
+  p2 <- process
+  return (PIf [] lhs op rhs p1 p2)
+
+assignStmt :: Parser Statement
+assignStmt = do
+  var <- identifier
+  symbol "="
+  e <- expr
+  symbol ";"
+  return (Assign var e)
+
+compareOp :: Parser CompareOp
+compareOp =
+  (symbol "<=" >> return Le)
+    <|> (symbol "<" >> return Lt)
+    <|> (symbol ">=" >> return Ge)
+    <|> (symbol ">" >> return Gt)
+    <|> (symbol "==" >> return Eq)
+    <|> (symbol "!=" >> return Ne)
+
 statement :: Parser Statement
 statement =
-  ( do
-      var <- identifier
-      symbol "="
-      e <- expr
-      symbol ";"
-      return (Assign var e)
-  )
+  assignStmt
     <|> ( do
             symbol "return"
-            e <- expr
+            p <- process
             symbol ";"
-            return (Return e)
-        )
-
-process :: Parser Expr
-process =
-  (Lit <$> integer)
-    <|> (Var <$> identifier)
-    <|> ( do
-            symbol "("
-            e <- expr
-            symbol ")"
-            return e
+            return (Return p)
         )
 
 program :: Parser Program
@@ -211,7 +195,6 @@ program = do
   space
   stmts <- many statement
   space
-  eof
   return (Program stmts)
 
 eof :: Parser ()

@@ -1,4 +1,3 @@
-# expr
 expr = term , { ("+" | "-") , term } ;
 term = power , { ("*" | "/") , power } ;
 power = factor , [ "^" , power ] ;
@@ -7,8 +6,14 @@ integer = [ "-" ] , digits ;
 digits = digit , { digit } ;
 digit = "0" | ... | "9" ;
 
-# sequence process
-seq = { var , "=" , expr , ";"} , "return" , process ;
-process   = var | integer | ( "(" , expr , ")" ) ;
+seq = { var , "=" , expr , ";" } , "return" , process ;
+
+process = var | integer | "(" , expr , ")" | if_stmt ;
+
+if_stmt = { var , "=" , expr , ";" } ,
+  "if" , expr , ( "<" | "<=" | "==" | "!=" | ">=" | ">" ) , expr ,
+  "then" , process ,
+  "else" , process ;
+
 var = alph , { alph | digit } ;
-alph = "a" | ... | "z"
+alph = "a" | ... | "z" ;

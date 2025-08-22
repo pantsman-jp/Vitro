@@ -1,17 +1,41 @@
 # Vitro / pantsman
 
 ## What is Vitro?
-Vitro is a simple interpreter implemented in Haskell that parses and evaluates mathematical expressions.  
-Vitro is a name inspired by _in-vitro_ (it means `in a test tube`).  
-The goal is to develop it into a general-purpose programming language in the future.
+Vitro is a lightweight programming language that supports basic arithmetic, variables, and control structures.
+
+### Arithmetic Operations
+- Supports addition (`+`), subtraction (`-`), multiplication (`*`), division (`/`), and exponentiation (`^`).
+- Parentheses `()` can be used to specify precedence.
+
+### Variables
+- Identifiers start with a lowercase letter and can include alphanumeric characters.
+- Assignment is done using `x = 10;` syntax.
+
+### Expressions and Processes
+- Distinguishes between `Expr` and `Process`.
+- `Process` can include literals, variables, parenthesized expressions, and `if` expressions.
+
+### Conditional Expressions
+- Supports `if <Expr> <CompareOp> <Expr> then <Process> else <Process>`.
+- Comparison operators include `==`, `!=`, `<`, `<=`, `>`, `>=`.
+- Both `then` and `else` clauses are mandatory.
+
+### Return Values
+- `return <Process>;` is used to produce the program's result.
+
+### Syntax Flexibility
+- Whitespace and line breaks are ignored for readability.
+- Statements are separated by semicolons `;`.
+
+### AST and Evaluation
+- Generates an Abstract Syntax Tree (AST) for evaluation.
+- `eval` function executes calculations while maintaining variable environment.
 
 ## Install
-Download from [here](https://github.com/pantsman-jp/Vitro).
+Download from <https://github.com/pantsman-jp/Vitro>.
 
 ## Usage
-Require [GHCup](https://www.haskell.org/ghcup/).
-
-I use `ghcup 0.1.50.2`, `ghc 9.6.7`, `cabal 3.12.1.0`.
+Require [GHCup](https://www.haskell.org/ghcup/). I use `ghcup 0.1.50.2`, `ghc 9.6.7`, `cabal 3.12.1.0`.
 
 To run:
 ```shell
@@ -21,15 +45,12 @@ Then you can input a program, and it is evaluated.
 Like this:
 ```
 >
-1 + 2    *(3  ^  2 /3) - 4
-3
+x=1; y=0; return if x==y then 1 else 0;
 ```
+output is of course...
 ```
->
-x=2; y=2; return x+y;
-4
+0
 ```
-As you can see, the presence or absence of spaces between operators does not matter.
 
 > [!NOTE]
 > There is a line break after `> `.
